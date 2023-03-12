@@ -1,3 +1,6 @@
+
+# TIP: use 'py' to run file in terminal
+
 from selenium import webdriver
 import time
 
