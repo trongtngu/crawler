@@ -93,7 +93,6 @@ restaurants = driver.find_elements("xpath", x_restaurants)
 for r in restaurants:
     restaurant_dict[r.get_attribute("innerHTML")] = {"price": "$$$$"}
 
-
 with open("database.json", "w") as outfile:
     json.dump(restaurant_dict, outfile, indent=4)
 
