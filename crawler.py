@@ -5,18 +5,25 @@ from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.action_chains import ActionChains
 
 import time
 import json
 
-# TODO: Stop chrome from changing location
-# use: https://github.com/ultrafunkamsterdam/undetected-chromedriver/issues/686
+# TODO: make the click and drag offsets even out
 
 options = Options()
 options.add_experimental_option("detach", True)
 
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-driver.get("https://www.google.com/search?q=restaurants+in+sydney&oq=restaurants+in+sydney&aqs=chrome.0.69i59j0i10i433i457i512j0i402j0i10i402i433i512j0i10i512j69i60l3.4986j0j7&sourceid=chrome&ie=UTF-8")
+
+driver.execute_cdp_cmd("Emulation.setGeolocationOverride", {
+    "latitude": -33.8734,
+    "longitude": 151.20678,
+    "accuracy": 100
+})
+
+driver.get("https://www.google.com/search?q=restaurants+in+sydney&oq=restaurants+in+sydney&aqs=chrome.0.69i59j69i60l3.1823j0j1&sourceid=chrome&ie=UTF-8")
 
 x_more_places = '//span[@class="Z4Cazf OSrXXb"]'
 mp = driver.find_element("xpath", x_more_places)
@@ -54,6 +61,8 @@ prices[0].click()
 ab = driver.find_element('xpath', x_apply_button)
 ab.click()
 
+time.sleep(5)
+
 restaurants = driver.find_elements("xpath", x_restaurants)
 for r in restaurants:
     restaurant_dict[r.get_attribute("innerHTML")] = {"price": "$"}
@@ -88,6 +97,17 @@ ab.click()
 
 time.sleep(5)
 
+actions = ActionChains(driver)
+x_map = '//div[@aria-label="Map"]'
+our_map = driver.find_element('xpath', x_map)
+actions.move_to_element(our_map).perform()
+actions.click_and_hold(our_map).perform()
+time.sleep(2)
+actions.move_by_offset(-10, -10).perform()
+actions.release(our_map)
+
+time.sleep(3)
+
 '''Resetting to page 1'''
 x_page_one = '//a[@aria-label="Page 1"]'
 page_one = driver.find_element('xpath', x_page_one)
@@ -115,7 +135,6 @@ while n in range(10):
 pb = driver.find_elements('xpath', x_price_button)
 pb[2].click()
 
-
 # Expensive - $$$
 prices = driver.find_elements('xpath', x_filter_prices)
 prices[1].click()
@@ -127,6 +146,17 @@ ab = driver.find_element('xpath', x_apply_button)
 ab.click()
 
 time.sleep(5)
+
+actions = ActionChains(driver)
+x_map = '//div[@aria-label="Map"]'
+our_map = driver.find_element('xpath', x_map)
+actions.move_to_element(our_map).perform()
+actions.click_and_hold(our_map).perform()
+time.sleep(2)
+actions.move_by_offset(-10, -10).perform()
+actions.release(our_map)
+
+time.sleep(3)
 
 restaurants = driver.find_elements("xpath", x_restaurants)
 for r in restaurants:
@@ -162,6 +192,17 @@ ab.click()
 
 time.sleep(5)
 
+actions = ActionChains(driver)
+x_map = '//div[@aria-label="Map"]'
+our_map = driver.find_element('xpath', x_map)
+actions.move_to_element(our_map).perform()
+actions.click_and_hold(our_map).perform()
+time.sleep(2)
+actions.move_by_offset(-10, -10).perform()
+actions.release(our_map)
+
+time.sleep(3)
+
 restaurants = driver.find_elements("xpath", x_restaurants)
 for r in restaurants:
     restaurant_dict[r.get_attribute("innerHTML")] = {"price": "$$$$"}
@@ -180,9 +221,6 @@ while n in range(10):
     except NoSuchElementException:
         n = 2
         break
-
-with open("database.json", "w") as outfile:
-    json.dump(restaurant_dict, outfile, indent=4)
 
 with open("database.json", "w") as outfile:
     json.dump(restaurant_dict, outfile, indent=4)
